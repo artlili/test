@@ -1,0 +1,190 @@
+<div class="text_block info_page page-width">
+    <gallery :images="productImagesUrls" :index="imageIndex" @close="imageIndex = null"></gallery>
+    <section class="section clearfix">
+        <div class="section-inner wrapper">
+            <div class="window__title">
+                <h3 class="window__h3">
+                    {{product.item.name}}
+                </h3>
+            </div>
+            <div class="entry-slider">
+                <div class="slide">
+                    <div class="col-sm-5 image">
+                            <span @click="click">
+                                <transition name="fade-img">
+                                  <span class="slide-tt" :style="{ backgroundImage: 'url(' + productImages[currentPointerImage].url + ')' }" :key="virtualPosition">
+                                  </span>
+                                </transition>
+                            </span>
+                    </div>
+
+                    <div v-if="product.item.images.length > 1" class="entry-slider__thumb mobile">
+                        <transition-group tag="div" v-bind:class="{ 'product-carousel' : (productImages.length > maxImages)}" name="product-carousel">
+                            <div class="thumb"
+                                 v-for="(image, i) in productImages"
+                                 :key="image.id"
+                                 v-bind:class="{ active: ( i == currentPointerImage), 'large-thumb' : (productImages.length > maxImages)  }"
+                                 @click="click">
+                                <div
+                                  class="img_container"
+                                  :style="{ backgroundImage: 'url(' + image.url + ')' }"
+                                  @mouseover="mouseOver(i)"
+                                  @mouseleave="mouseLeave">
+                                    <!-- <img :src="image.url" @mouseover="mouseOver(i)" @mouseleave="mouseLeave"/> -->
+                                </div>
+                            </div>
+                        </transition-group>
+
+                        <div class="control control-left" v-if="productImages.length > maxImages">
+                            <a class="prev fas fa-angle-left" href="#" @click.prevent="prevImage()"></a>
+                        </div>
+                        <div class="control control-right" v-if="productImages.length > maxImages">
+                            <a class="next fas fa-angle-right" href="#" @click.prevent="nextImage()"></a>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-7 desc">
+                        <section v-if="product.item.sections.length" class="company_view_sections">
+                            <div class="title">Категории</div>
+                            <router-link v-for="(item, index) in product.item.sections" :key="index"
+                                         :to="'/products/' + item.alias">
+                                <span>{{item.name}}</span>
+                            </router-link>
+                        </section>
+                        <div v-html="product.item.introtext"></div>
+                    </div>
+                </div>
+                <div v-if="product.item.images.length > 1" class="entry-slider__thumb desktop">
+                    <transition-group tag="div" v-bind:class="{ 'product-carousel' : (productImages.length > maxImages)}" name="product-carousel">
+                        <div class="thumb"
+                             v-for="(image, i) in productImages"
+                             :key="image.id"
+                             v-bind:class="{ active: ( i == currentPointerImage), 'large-thumb' : (productImages.length > maxImages)  }"
+                             @click="click">
+                            <div
+                              class="img_container"
+                              :style="{ backgroundImage: 'url(' + image.url + ')' }"
+                              @mouseover="mouseOver(i)"
+                              @mouseleave="mouseLeave">
+                            </div>
+                        </div>
+                    </transition-group>
+
+                    <div class="control control-left" v-if="productImages.length > maxImages">
+                        <a class="prev fas fa-angle-left" href="#" @click.prevent="prevImage()"></a>
+                    </div>
+                    <div class="control control-right" v-if="productImages.length > maxImages">
+                        <a class="next fas fa-angle-right" href="#" @click.prevent="nextImage()"></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-desc">
+                <div v-if="product.item.text">
+                    <div class="title">Описание</div>
+                    <div class="product-desc__text">
+                        <template v-for="node, n in nodes">
+                            <div v-if="n % 2"><small-gallery :id="node"></small-gallery></div>
+                            <div v-else v-html="node"></div>
+                        </template>
+                    </div>
+                </div>
+
+                <div v-if="product.item.weight || product.item.width">
+                    <div class="title">Характеристики</div>
+                    <table class="table table-striped">
+                        <tr v-if="product.item.width">
+                            <td>Габариты</td>
+                            <td>{{product.item.width}} x {{product.item.height}} x {{product.item.depth}}</td>
+                        </tr>
+                        <tr v-if="product.item.weight">
+                            <td>Вес</td>
+                            <td>{{product.item.weight}} г</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="aside product-aside">
+            <div class="go_back"><a onClick="window.history.back()">Вернуться назад</a></div>
+            <div v-if="product.item.prices.length" class="aside-head">
+                <h3>Предложения компаний</h3>
+            </div>
+            <div v-if="product.item.prices.length" class="aside-inner bordered">
+                <div class="company-offers">
+                    <div v-for="(item, index) in product.item.prices" class="item">
+                        <div class="item-inner">
+                            <div class="image">
+                                <img :src="item.company.logo ? item.company.logo : noImageUrls.company270180">
+                            </div>
+                            <div class="price" v-if="item.price !== '0.00'">{{item.price}} {{item.currency}}</div>
+                            <div class="price" v-else>Цена<br/> по запросу</div>
+                        </div>
+
+                        <div class="buttons">
+                            <span class="phones" @click="openCompanyContact(index)">Телефоны</span>
+                            <router-link :to="'/company/' + item.company.alias" class="more">Подробнее</router-link>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="recomend__img">
+                    <banner position="InsideProduct"></banner>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="products" v-if="product.item.productFollowers.length">
+        <div class="block_title left">Сопутствующие продукты</div>
+        <div class="clear"></div>
+        <div class="grid">
+            <div class="item_wrap" v-for="item in product.item.productFollowers">
+                <div class="product">
+                    <div class="thumb">
+                        <router-link :to="'/product/' + item.alias">
+                            <img :src="(item.image ? item.image : noImageUrls.product250250)" alt="">
+                        </router-link>
+                    </div>
+
+                    <div class="info">
+                        <div class="name">
+                            <router-link :to="'/product/' + item.alias">
+                                {{item.name}}
+                            </router-link>
+                        </div>
+
+                        <div v-if="item.price !== '0.00'" class="price">
+                            <b>{{item.price}}</b> {{item.currency}}
+                        </div>
+                        <div v-else class="price">
+                            по запросу
+                        </div>
+
+                        <router-link :to="'/product/' + item.alias" class="details">
+                            <span>подробнее</span>
+                        </router-link>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal" id="entry-slider__modal">
+        <div class="close">&times;</div>
+        <div class="modal-body">
+            <img src="/tmp/product.png">
+        </div>
+        <div class="control">
+            <a class="prev" href="">prev</a>
+            <a class="next" href="">next</a>
+        </div>
+    </div>
+
+    <company-contact :company="selectedCompany" :openTab="selectedCompanyTab"></company-contact>
+</div>

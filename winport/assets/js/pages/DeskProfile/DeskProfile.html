@@ -1,0 +1,161 @@
+<div class="page_content desk">
+  <div class="cont">
+      <h1 class="page_title">
+        <div>Профиль пользователя</div>
+      </h1>
+
+
+      <div class="clearfix">
+        <div class="section-inner wrapper">
+          <section class="page_menu">
+            <desk-page-menu
+              v-for="item in pageMenu"
+              :title="item.title"
+              :link="item.link"
+              :key="item.title"
+              :name="item.name"
+            ></desk-page-menu>
+          </section>
+          <div class="row">
+            <div class="col-md-3">
+              <label>
+                <div class="user-avatar">
+
+                  <div class="crop-img" :class="{'crop-height' : cropHeight}">
+                    <label class="control-label" for="upload" v-if="hideUploadBtn == 1">
+                      <span class="file-upload">
+                        <input
+                          id="upload"
+                          class="file-upload__input"
+                          type="file"
+                          name="file-upload"
+                          accept="image/*"
+                          @change="setImage">
+                          <span class="file-add">
+                            <span
+                              class="btn btn-primary crop-btn add"
+                            >Add</span>
+                          </span>
+                      </span>
+                    </label>
+                    <div v-if="hideUploadBtn <= 2">
+                      <div class="crop-img__container">
+                        <vue-cropper
+                            ref='cropper'
+                            :guides="true"
+                            :view-mode="1"
+                            drag-mode="crop"
+                            :aspect-ratio="184/184"
+                            :auto-crop-area="1"
+                            :min-container-width="184"
+                            :min-container-height="184"
+                            :background="true"
+                            :rotatable="true"
+                            :src="imgSrc"
+                            :img-style="{ 'width': '184px', 'height': '184px' }">
+                        </vue-cropper>
+                      </div>
+
+                      <button
+                        class="btn btn-primary crop-btn"
+                        @click="cropImage"
+                        v-if="imgSrc != ''">Crop</button>
+                      <button
+                        class="btn btn-primary crop-btn rotate"
+                        @click="rotateImage"
+                        v-if="imgSrc != ''">Rotate</button>
+                    </div>
+                    <div v-if="hideUploadBtn == 3">
+                      <button
+                        class="btn btn-danger crop-btn delete"
+                        @click="deleteImage"
+                        v-if="imgSrc != ''">Delete</button>
+
+                      <img :src="cropImg" class="cropped-img" alt="Cropped Image"/>
+                    </div>
+                  </div>
+
+
+
+                  <span
+                    class="user-avatar_link"
+                    v-if="hideUploadBtn == 1"
+                  >Загрузить аватар</span>
+                  <span
+                    class="user-avatar_link"
+                    v-if="hideUploadBtn == 3"
+                    @click="deleteImage"
+                  >Очистить</span>
+
+                </div>
+
+                <!-- <input type="file" class="user-avatar_input"> -->
+              </label>
+
+            </div>
+            <div class="col-md-9">
+              <div class="user-form">
+                <div class="form-group">
+                  <label class="control-label">Имя Отчество Фамилия</label>
+                  <input type="text" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label">Пол</label>
+                  <v-select
+                    :options="['Мужской','Женский','Не определился']"
+                    placeholder="Выбрать"
+                  ></v-select>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label">Дата Рождения</label>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <v-select
+                        :options="['1','2','3', '4', '5', '6']"
+                        placeholder="День"
+                      ></v-select>
+                    </div>
+                    <div class="col-md-4">
+                      <v-select
+                        :options="['Январь','Февраль','Март']"
+                        placeholder="Месяц"
+                      ></v-select>
+                    </div>
+                    <div class="col-md-4">
+                      <v-select
+                        :options="['1968','1969','1970']"
+                        placeholder="Год"
+                      ></v-select>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label">Интересы</label>
+                  <input type="text" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label">Город</label>
+                  <input type="text" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label">Подпись</label>
+                  <textarea class="form-control" placeholder="Добавить подпись под аватаром"></textarea>
+                </div>
+                <button class="btn btn-primary">Сохранить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <desk-sidebar-menu></desk-sidebar-menu>
+      </div>
+
+
+  </div>
+
+</div>

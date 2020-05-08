@@ -1,0 +1,196 @@
+<div class="text_block info_page page-width">
+    <div>
+        <nav class="navigation">
+            <div class="navigation__wrap">
+                <div class="nav_title">
+                    <h3 class="h3">
+                        Компании
+                    </h3>
+                </div>
+                <div class="col-12">
+                    <div class="navigation__line"></div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <section class="section clearfix">
+        <div class="section-inner wrapper">
+            <div class="search products-search">
+                <input @keyup.enter="fetchSearchDataCompany" type="text" name="search" v-model="search"
+                       class="input left" placeholder="Найти компанию">
+                <button @click="fetchSearchDataCompany" class="submit_btn left"></button>
+            </div>
+            <span class="product_filter" v-if="sort === 'asc'" @click="fetchSearchDataDescCompany"
+                  style="font-size: 3rem; color: #287fc4; cursor: pointer"><i class="fas fa-sort-amount-up"
+                                                                              style="margin-top: 4px; margin-left: 5px"></i></span>
+            <span class="product_filter" v-if="sort === 'desc'" @click="fetchSearchDataAscCompany"
+                  style="font-size: 3rem; color: #287fc4; cursor: pointer"><i class="fas fa-sort-amount-down"
+                                                                              style="margin-top: 4px; margin-left: 5px"></i></span>
+            <div class="clear"></div>
+            <br>
+            <span v-if="isFirstPage" v-html="page.section.text"></span>
+            <div class="clearfix" v-if="page.items.length">
+
+                <div v-if="companiesTop.length" v-for="(item, index) in companiesTop" class="company">
+
+                    <div class="company_head">
+                        <div class="row">
+                            <div class="company_head-name col-lg-6 col-md-5">
+                                <router-link :to="'/company/' + item.alias">
+                                    {{item.name}}
+                                </router-link>
+                            </div>
+                            <div class="company_head-buttons col-lg-6 col-md-7">
+                                    <span href class="btn btn-primary" v-if="item.email.length>0"
+                                          @click="companyContactsId = index; isShowCompanyFeedback=true; setOpenCompanyContact(true);">
+                                        Связаться с компанией
+                                    </span>
+                                    <span href class="btn btn-primary" v-if="item.email.length === 0"
+                                      @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'phones'; setOpenCompanyContact(true);">
+                                        Связаться с компанией
+                                    </span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="company_body">
+                        <div class="company_card">
+                            <div class="inner">
+                                <div class="image col-md-4">
+                                    <router-link :to="'/company/' + item.alias">
+                                        <img :src="item.logo ? item.logo : noImageUrls.company270180"/>
+                                    </router-link>
+                                </div>
+                                <div class="data col-md-8">
+                                    <div class="address" v-if="item.address">
+                                        {{item.address}}
+                                    </div>
+                                    <div class="phones_link">
+
+                                            <span class="modal_link" href="" v-if="item.phone_1"
+                                                  @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'phones'; setOpenCompanyContact(true);">
+                                                <div class="icon phones"></div>
+                                                Телефон
+                                            </span>
+                                    </div>
+                                    <div class="links">
+                                        <a :href="item.website" v-if="item.website" target="_blank">
+                                            <div class="icon site"></div>
+                                            Вебсайт
+                                        </a>
+                                        <span class="modal_link" v-if="item.email"
+                                              @click="companyContactsId = index; isShowCompanyFeedback=false; selectedCompanyTab = 'email'; setOpenCompanyContact(true);">
+                                                <div class="icon email"></div>
+                                                E-mail
+                                            </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="company_desc">
+                            <p>{{item.introtext}}</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div v-if="companiesGeneral.length">
+                    <div class="row" v-for="i in Math.ceil(companiesGeneral.length / 2)">
+
+                        <div class="col-md-6" v-for="(item, index) in companiesGeneral.slice((i - 1) * 2, i * 2)">
+
+                            <div class="company">
+                                <div class="company_head">
+                                    <div class="">
+                                        <div class="company_head-name">
+                                            <router-link :to="'/company/' + item.alias">
+                                                {{item.name}}
+                                            </router-link>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="company_body">
+                                    <div class="company_card">
+                                        <div class="row inner">
+                                            <div class="data col">
+                                                <div class="address">
+                                                    {{item.address}}
+                                                </div>
+                                                <div class="phones_link">
+                                                    <span class="modal_link" href="" v-if="item.phone_1"
+                                                          @click="openGeneralCompanyContact(i, index)">
+                                                        <div class="icon phones"></div>
+                                                        Телефон
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="clearfix"></div>
+
+                <pagination :pagination="pagination"
+                            :urlPrefix="'/companies' + (companiesAlias ? ('/' + companiesAlias) : '')"></pagination>
+
+            </div>
+            <h3 v-if="!page.items.length">Ничего не найдено</h3>
+        </div>
+        <div class="kategory__wrap">
+
+            <div class="product__kategory">
+                <catalog-menu-right caption="Категории компаний" baseUrl="companies"
+                                    :sections="sections" :activeAlias="companiesAlias"
+                                    :opennedAlias="opennedAlias"></catalog-menu-right>
+                <!-- <catalog-filter-right></catalog-filter-right> -->
+            </div>
+
+            <div class="product__recomend">
+                <div class="recomend" v-if="page.favoriteCompanies.length">
+                    <h3 class="h3 recomend-h3">
+                        Рекомендации
+                    </h3>
+
+                    <div class="company__wrapper">
+                        <div class="company__flex" v-for="i in Math.ceil(page.favoriteCompanies.length / 2)">
+                            <div class="company__img"
+                                 v-for="company in page.favoriteCompanies.slice((i - 1) * 2, i * 2)">
+                                <div class="bord">
+                                    <router-link :to="'/company/' + company.alias" class="item">
+                                        <div class="icon">
+                                            <img v-if="company.logo" :src="company.logo"/>
+                                        </div>
+
+                                        <div class="name">
+                                          <span class="truncated">
+                                            {{company.name  | truncate(20)}}
+                                          </span>
+                                            <span class="full">
+                                            {{company.name}}
+                                          </span>
+                                        </div>
+                                    </router-link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recomend__img">
+                <banner position="InsideCompanies"></banner>
+            </div>
+        </div>
+    </section>
+
+    <company-contact :company="selectedCompany" :openTab="selectedCompanyTab" :feedback="isShowCompanyFeedback"></company-contact>
+</div>

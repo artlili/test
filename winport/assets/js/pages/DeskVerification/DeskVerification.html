@@ -1,0 +1,106 @@
+<div class="page_content desk">
+  <div class="cont">
+    <h1 class="page_title">
+      <div>SMS верификация</div>
+    </h1>
+
+
+    <div class="clearfix">
+      <div class="section-inner wrapper">
+        <section class="page_menu">
+          <desk-page-menu
+            v-for="item in pageMenu"
+            :title="item.title"
+            :link="item.link"
+            :key="item.title"
+            :name="item.name"
+          ></desk-page-menu>
+        </section>
+        <h4>Подтверждение номера телефона</h4>
+        <p>Для использования некоторых расширенных функций портала (как-то: разместить объявление, добавить компанию в каталог, написать отзыв или комментарий и др.) Пользователю необходимо пройти процедуру SMS верификации - привязки номера мобильного телефона к Вашей учетной записи. После активации своей учетной записи (при условии авторизации на интернет-ресурсе) Пользователь сможет пользоваться расширенным функционалом портала.</p>
+        <p>Ваш номер телефона не виден другим пользователям и используется только для идентификации и защиты вашего профиля от несанкционированного доступа.</p>
+
+        <div class="form-group" v-if="verifiedCode">
+          <form>
+            <label>
+              <i class="fas fa-check-circle"></i>Процедура SMS верификации успешно пройдена
+            </label>
+
+            <strong>Текущий номер мобильного телефона: {{ user.phone }}</strong>
+            <a
+              class="open-phone_link"
+              @click.prevent="openPhoneInput"
+            >Изменить</a>
+            <div class="phone-input" :class="{'open' : phoneInput }">
+              <label>
+                Вы можете привязать другой номер телефона к вашему профилю.
+                <input
+                  type="text"
+                  class="form-control"
+                  v-mask="'+# (###) ###-####'"
+                  :value="user.phone"
+                  @blur="changedPhone"
+                >
+              </label>
+              <button
+                class="btn btn-secondary"
+                @click.prevent="cancelChangePhone"
+              >
+              Отменить
+            </button>
+              <button
+                class="btn btn-primary"
+                @click.prevent="changePhone"
+              >
+              Сохранить
+            </button>
+            </div>
+          </form>
+        </div>
+          <div v-else class="form-group">
+            <form>
+              <div v-if="!addPhone">
+                <label>
+
+                  <i class="fas fa-exclamation-circle"></i>Процедура SMS верификации не пройдена
+                  <input
+                    type="tel"
+                    v-mask="'+# (###) ###-####'"
+                    class="form-control"
+                    placeholder="Введите номер мобильного телефона"
+                    @input="addUserPhone"
+                   >
+                </label>
+                <button
+                  class="btn btn-primary"
+                  :class="{'hidden' : !activeBtn}"
+                  @click.prevent="phoneAdded"
+                >Получить код</button>
+              </div>
+            </form>
+            <form>
+              <div v-if="addPhone">
+                <label>
+                  <span>Введите код</span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Введите код"
+                    @blur="codeVerification">
+                </label>
+                <button
+                  class="btn btn-primary"
+                  @click.prevent="codeSuccess"
+                >Отправить код</button>
+                <div v-if="checkCode === 1" class="alert alert-danger">Вы ввели неправильный код</div>
+              </div>
+            </form>
+
+          </div>
+
+      </div>
+      <desk-sidebar-menu></desk-sidebar-menu>
+    </div>
+  </div>
+
+</div>

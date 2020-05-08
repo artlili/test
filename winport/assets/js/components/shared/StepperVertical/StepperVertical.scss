@@ -1,0 +1,57 @@
+.step-title {
+  cursor: pointer;
+
+  h2 {
+    font-size: 22px;
+    line-height: 24px;
+    display: inline-block;
+  }
+
+  .step-control {
+    border: 2px solid #287fc4;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    top: -2px;
+    border-radius: 50%;
+    margin-right: 10px;
+    text-align: center;
+    line-height: 28px;
+
+    &:after {
+      content: '';
+      border-color: #287fc4;
+      border-style: solid;
+      border-width: 2px 2px 0 0;
+      display: inline-block;
+      height: 10px;
+      width: 10px;
+      vertical-align: text-top;
+      transform: rotate(133deg);
+      box-sizing: inherit;
+      margin-top: 0;
+      transition: all .5s ease;
+    }
+  }
+}
+
+.opened .step-control:after {
+  content: '';
+  margin-top: 2px;
+  transform: rotate(-47deg);
+  transition: all .5s ease;
+}
+.step-inner {
+  padding-left: 30px;
+  border-left: 2px solid #287fc4;
+  margin: 30px 15px 20px 15px;
+}
+
+.step.error {
+  .step-control, 
+  .step-control:after,
+  .step-inner {
+    border-color: #f00;
+  }
+}

@@ -1,0 +1,38 @@
+// Настройки глобальных переменных для scss они могут быть использованны в любых .vue файлах
+$grid-gutter-width: 30px;
+$grid-breakpoints: (
+  xs: 0,
+  sm: 780px,
+  md: 1040px,
+  lg: 1200px,
+  xl: 1500px
+);
+
+$container-max-widths: (
+  sm: 100%,
+  md: 100%,
+  lg: 1185px,
+  xl: 1440px
+);
+
+$time: 225ms;
+
+$fontMain: "Rubik";
+$fontHeading: "PFDinTextCompPro";
+
+$colorTextMain: #4d4d4d;
+$colorGrayMedium: #9d9e9e;
+$colorGrayLight: #e5e5e5;
+$colorBrand: #ff7436;
+$colorBrandMedium: #ffb290;
+$colorBrandLight: lighten($colorBrand, 31.5%); // #ffe3d7
+$colorBrandDark: darken($colorBrand, 21.6%);
+$colorBorderDefault: #d3d3d3;
+$colorDanger: #d8362a;
+
+$createRequestPersonalsContainerHeight: 250px;
+
+$defaultStickyHeaderHeight: 60px;
+
+// Mixins and functions
+@import "helpers";

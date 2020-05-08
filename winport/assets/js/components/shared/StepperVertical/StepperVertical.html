@@ -1,0 +1,9 @@
+<div class="step"  :class="{'opened' : openedStep}">
+  <div class="step-title" @click="openStep">
+    <span class="step-control"></span>
+    <slot name="step-title"></slot>
+  </div>
+  <div class="step-inner" v-show="openedStep">
+    <slot name="step-inner"></slot>
+  </div>
+</div>

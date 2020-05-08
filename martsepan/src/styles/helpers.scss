@@ -1,0 +1,85 @@
+@mixin hintBlock($_orientation: '') {
+  position: absolute;
+  top: calc(100% + 9px);
+  @if ($_orientation == 'right') {
+    left: calc(50% - 24px);
+    right: unset;
+  } @else {
+    right: calc(50% - 24px);
+    left: unset;
+  }
+  background-color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px -3px rgba(0, 0, 0, 0.35);
+  border: 1px solid #b0b1b1;
+  padding: 8px;
+  z-index: 2;
+  pointer-events: none;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.4;
+  &::before {
+    content: '';
+    display: block;
+    border: 9px solid transparent;
+    position: absolute;
+    top: -18px;
+    @if ($_orientation == 'right') {
+      left: 15px;
+      right: unset;
+    } @else {
+      right: 15px;
+      left: unset;
+    }
+    border-bottom: 9px solid #b0b1b1;
+    box-sizing: content-box;
+    z-index: 2;
+  }
+  &::after {
+    content: '';
+    display: block;
+    border: 9px solid transparent;
+    position: absolute;
+    top: -17px;
+    @if ($_orientation == 'right') {
+      left: 15px;
+      right: unset;
+    } @else {
+      right: 15px;
+      left: unset;
+    }
+    z-index: 3;
+    border-bottom: 9px solid white;
+    box-sizing: content-box;
+  }
+}
+
+
+@mixin createGrid($_grid_gutter) {
+  display: flex;
+  margin-left: -($_grid_gutter/2);
+  margin-right: -($_grid_gutter/2);
+
+  & > * {
+    padding-left: $_grid_gutter/2;
+    padding-right: $_grid_gutter/2;
+  }
+}
+
+@mixin nullifyGrid {
+  margin-left: 0;
+  margin-right: 0;
+
+  & > * {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@function getBreakpointVal($_breakpoint_name) {
+  @return map_get($grid-breakpoints, $_breakpoint_name) - 1px;
+}
+
+@mixin defaultBoxShadow {
+  box-shadow: 0 4px 6px -3px rgba(#000, 0.2);
+}

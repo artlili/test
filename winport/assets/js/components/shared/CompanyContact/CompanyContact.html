@@ -1,0 +1,301 @@
+<transition name="bounce">
+    <div class="modal-mask" v-if="openCompanyContact" @click="closeAndSwitchToContacts">
+        <div class="modal-wrapper">
+            <div id="company_contacts_modal" class="modal big" @click.stop v-show="!companyFeedback && !wrongNumber">
+                <div class="head"><div class="name">{{company.name}}</div></div>
+                <div class="tabs_container">
+                    <ul class="tabs">
+                        <li v-bind:class="{ active: companyContactsPrompt === 'phones' }"
+                            @click="companyContactsPrompt = 'phones'">
+                            <a>Телефоны</a>
+                        </li>
+                        <li v-show="company.working_time && company.working_time.monday.length>0"
+                            v-bind:class="{ active: companyContactsPrompt === 'working_time' }"
+                            @click="companyContactsPrompt = 'working_time'">
+                            <a>Режим работы</a>
+                        </li>
+                        <li v-show="company.email"
+                            v-bind:class="{ active: companyContactsPrompt === 'email' }"
+                            @click="companyContactsPrompt = 'email'">
+                            <a>E-mail</a>
+                        </li>
+                    </ul>
+                    <div v-if="companyPhoneType">
+                        <!-- <pre>{{company}}</pre> -->
+                    </div>
+                    <div v-show="companyContactsPrompt === 'phones'" class="">
+                        <div class="phones">
+                            <div v-if="company.phone_1">
+                                <div class="phone left"
+                                :class="companyPhoneIcon.type1">
+                                </div>
+                                <div class="left" v-html="companyPhone1Formatted">
+                                </div>
+                            </div>
+                            <div v-if="company.phone_2">
+                                <div class="phone left"
+                                :class="companyPhoneIcon.type2">
+                                </div>
+                                <div class="left" v-html="companyPhone2Formatted">
+                                </div>
+                            </div>
+                            <div v-if="company.phone_3">
+                                <div class="phone left"
+                                :class="companyPhoneIcon.type3">
+                                </div>
+                                <div class="left" v-html="companyPhone3Formatted">
+                                </div>
+                            </div>
+                            <div v-if="company.phone_4">
+                                <div class="phone left"
+                                :class="companyPhoneIcon.type4">
+                                </div>
+                                <div class="left" v-html="companyPhone4Formatted">
+                                </div>
+                            </div>
+                            <div v-if="company.phone_5">
+                                <div class="phone left"
+                                :class="companyPhoneIcon.type5">
+                                </div>
+                                <div class="left" v-html="companyPhone5Formatted">
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="report_link" @click.prevent="reportWrongNumber">Сообщить о неправильном номере</a>
+                    </div>
+                    <div v-show="companyContactsPrompt === 'working_time'" class="">
+                        <div class="times">
+                            <div>
+                                <div class="day left">Понедельник</div>
+                                <div class="left"
+                                     :class="{ red: isWeekend(company.working_time.monday), blue: isDayAndNight(company.working_time.monday) }"
+                                >{{company.working_time.monday}}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="day left">Вторник</div>
+                                <div class="left"
+                                     :class="{ red: isWeekend(company.working_time.tuesday), blue: isDayAndNight(company.working_time.tuesday) }"
+                                >{{company.working_time.tuesday}}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="day left">Среда</div>
+                                <div class="left"
+                                     :class="{ red: isWeekend(company.working_time.wednesday), blue: isDayAndNight(company.working_time.wednesday) }"
+                                >{{company.working_time.wednesday}}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="day left">Четверг</div>
+                                <div class="left"
+                                     :class="{ red: isWeekend(company.working_time.thursday), blue: isDayAndNight(company.working_time.thursday) }"
+                                >{{company.working_time.thursday}}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="day left">Пятница</div>
+                                <div class="left"
+                                     :class="{ red: isWeekend(company.working_time.friday), blue: isDayAndNight(company.working_time.friday) }"
+                                >{{company.working_time.friday}}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="day left">Суббота</div>
+                                <div class="left"
+                                     :class="{ red: isWeekend(company.working_time.saturday), blue: isDayAndNight(company.working_time.saturday) }"
+                                >{{company.working_time.saturday}}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="day left">Воскресенье</div>
+                                <div class="left"
+                                     :class="{ red: isWeekend(company.working_time.sunday), blue: isDayAndNight(company.working_time.sunday) }"
+                                >{{company.working_time.sunday}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-show="companyContactsPrompt === 'email'" class="">
+                        <div class="emails">
+                            <div><a :href="`mailto:${company.email}`">{{company.email}}</a></div>
+                        </div>
+
+                        <a class="feedback_link modal_link" v-show="company.email" @click="toggleModal()">написать
+                            нам</a>
+                    </div>
+                </div>
+                <button class="modal-close" title="Закрыть" @click="setOpenCompanyContact(false)"></button>
+            </div>
+
+            <div id="company_feedback_modal" class="modal big" @click.stop v-show="companyFeedback">
+                <div class="modal_title">Связаться с компанией {{company.name}}</div>
+                <div v-if="feedbackResponse && feedbackResponse.success && feedbackResponse.message">
+                    {{feedbackResponse.message}}
+                </div>
+                <div class="form">
+                    <div class="lines">
+                        <div class="line">
+                            <div class="field">
+                                <input type="text"
+                                       v-model="companyFeedbackForm.name"
+                                       :class="{error: feedbackResponse.errors && feedbackResponse.errors.name}"
+                                       value="" class="input" placeholder="Ваше имя*" autofocus>
+                                <form-element-error
+                                        v-bind:errors="feedbackResponse.errors.name"
+                                        v-if="feedbackResponse.errors && feedbackResponse.errors.name">
+                                </form-element-error>
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="field">
+                                <input v-model="companyFeedbackForm.phone"
+                                       :class="{error: feedbackResponse.errors && feedbackResponse.errors.phone}"
+                                       type="tel" class="input" placeholder="Ваш телефон*">
+                                <form-element-error
+                                        v-bind:errors="feedbackResponse.errors.phone"
+                                        v-if="feedbackResponse.errors && feedbackResponse.errors.phone">
+                                </form-element-error>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lines">
+                        <div class="line">
+                            <div class="field">
+                                <input v-model="companyFeedbackForm.email"
+                                       :class="{error: feedbackResponse.errors && feedbackResponse.errors.email}"
+                                       type="email" class="input" placeholder="Ваш e-mail*">
+                                <form-element-error
+                                        v-bind:errors="feedbackResponse.errors.email"
+                                        v-if="feedbackResponse.errors && feedbackResponse.errors.email">
+                                </form-element-error>
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="field">
+                                <input v-model="companyFeedbackForm.city"
+                                       :class="{error: feedbackResponse.errors && feedbackResponse.errors.city}"
+                                       type="text" class="input" placeholder="Ваш город*">
+                                <form-element-error
+                                        v-bind:errors="feedbackResponse.errors.city"
+                                        v-if="feedbackResponse.errors && feedbackResponse.errors.city">
+                                </form-element-error>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="line">
+                        <div class="field">
+                                <textarea v-model="companyFeedbackForm.message"
+                                          :class="{error: feedbackResponse.errors && feedbackResponse.errors.message}"
+                                          placeholder="Ваше сообщение"></textarea>
+                            <form-element-error
+                                    v-bind:errors="feedbackResponse.errors.message"
+                                    v-if="feedbackResponse.errors && feedbackResponse.errors.message">
+                            </form-element-error>
+                        </div>
+                    </div>
+
+                    <div class="line">
+                        <div class="field">
+                            <vue-recaptcha
+                                    ref="companyContactRecaptcha"
+                                    @verify="onCompanyCaptchaVerified"
+                                    @expired="onCompanyCaptchaExpired"
+                                    size="invisible"
+                                    sitekey="6Lf8HXUUAAAAAJAFII1Zx2WMEhE_cAgHP4PUB8n-">
+                            </vue-recaptcha>
+                        </div>
+                    </div>
+
+                    <div class="submit">
+                        <button :disabled="status==='submitting'" type="submit" class="submit_btn"
+                                @click="checkCaptcha()">отправить
+                        </button>
+                    </div>
+                </div>
+                <button class="modal-close" title="Закрыть" @click="closeAndSwitchToContacts"></button>
+            </div>
+
+            <div id="company_contacts_wrong" class="modal big" @click.stop v-show="wrongNumber">
+                <div class="head"><div class="name">{{company.name}}</div></div>
+                <div class="tabs_container">
+                    <div class="">
+                        <div class="phones">
+                            <p>Какие из контактов неверные?</p>
+                            <div v-if="company.phone_1">
+
+                                <div class="phone left">
+                                    <input id="phone_1" type="checkbox" name="phone_1" v-model="wrong_phone_1">
+                                    <label for="phone_1">
+                                        <span class="phone-icon"
+                                            :class="companyPhoneIcon.type1"></span>
+                                        <span v-html="companyPhone1Formatted"></span>
+                                        <span class="phone-label"></span>        
+                                    </label>
+                                </div>
+                            </div>
+                            <div v-if="company.phone_2">
+
+                                <div class="phone left">
+                                    <input id="phone_2" type="checkbox" name="phone_2" v-model="wrong_phone_2">
+                                    <label for="phone_2">
+                                        <span class="phone-icon"
+                                            :class="companyPhoneIcon.type2"></span>
+                                        <span v-html="companyPhone2Formatted"></span>
+                                        <span class="phone-label"></span>        
+                                    </label>
+                                </div>
+                            </div>
+                            <div v-if="company.phone_3">
+
+                                <div class="phone left">
+                                    <input id="phone_3" type="checkbox" name="phone_3" v-model="wrong_phone_3">
+                                    <label for="phone_3">
+                                        <span class="phone-icon"
+                                            :class="companyPhoneIcon.type3"></span>
+                                        <span v-html="companyPhone3Formatted"></span>
+                                        <span class="phone-label"></span>        
+                                    </label>
+                                </div>
+                            </div>
+                            <div v-if="company.phone_4">
+
+                                <div class="phone left">
+                                    <input id="phone_4" type="checkbox" name="phone_4" v-model="wrong_phone_4">
+                                    <label for="phone_4">
+                                        <span class="phone-icon"
+                                            :class="companyPhoneIcon.type4"></span>
+                                        <span v-html="companyPhone4Formatted"></span>
+                                        <span class="phone-label"></span>        
+                                    </label>
+                                </div>
+                            </div>
+                            <div v-if="company.phone_5">
+
+                                <div class="phone left">
+                                    <input id="phone_5" type="checkbox" name="phone_5" v-model="wrong_phone_5">
+                                    <label for="phone_5">
+                                        <span class="phone-icon"
+                                            :class="companyPhoneIcon.type5"></span>
+                                        <span v-html="companyPhone5Formatted"></span>
+                                        <span class="phone-label"></span>        
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="submit">
+                            <button :disabled="status==='submitting'" type="submit" class="submit_btn feedback_link"
+                                    @click="sendWrongNumber">Отправить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button class="modal-close" title="Закрыть" @click="closeAndSwitchToContacts"></button>
+            </div>
+        </div>
+    </div>
+</transition>

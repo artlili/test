@@ -1,0 +1,125 @@
+#company_contacts_modal,
+#company_contacts_wrong {
+	.phones {
+		width: 100%;
+		background: none;
+        text-align: left;
+        left: 0;
+        line-height: 1.2;
+
+        p {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .phone {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            margin-top: 2px;
+
+            &.tel {
+                background: url(/theme/default/images/typical-phone.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+            &.tel-fax {
+                background: url(/theme/default/images/fax.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+            &.fax {
+                background: url(/theme/default/images/printer.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+            &.tel-mob {
+                background: url(/theme/default/images/mobile-phone.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+            
+            input[type="checkbox"] + label {
+                background-position: 0 7px;
+                span {
+                    color: #000;
+                    font-weight: 600;
+                    margin-left: 5px;
+                }
+                
+            }
+            input[type="checkbox"]:checked + label {
+                background-position: 0 -22px;
+            }
+        }
+        
+
+    }
+
+}
+
+#company_contacts_wrong {
+    .phones{
+        .phone {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        input[type="checkbox"] + label {
+            background: none;
+            padding-left: 0;
+            position: relative;
+            cursor: pointer;
+
+            span {
+                margin: 0;
+            }
+
+            .phone-label {
+                background-image: url(/theme/default/images/check.png);
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: 0 7px;
+                width: 20px;
+                height: 29px;
+                display: inline-block;
+                position: absolute;
+                top: 2px;
+                right: -30px;
+            }
+            
+        }
+
+        input[type=checkbox]:checked + label {
+            .phone-label {
+                background-position: 0 -22px;
+                top: -1px;
+            }
+        }
+
+
+        .phone-icon {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            margin: 0!important;
+            position: relative;
+            top: 5px;
+
+            &.tel {
+                background: url(/theme/default/images/typical-phone.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+            &.tel-fax {
+                background: url(/theme/default/images/fax.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+            &.fax {
+                background: url(/theme/default/images/printer.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+            &.tel-mob {
+                background: url(/theme/default/images/mobile-phone.svg) 0 0 no-repeat;
+                background-size: cover;
+            }
+        }
+    }
+    
+}
+

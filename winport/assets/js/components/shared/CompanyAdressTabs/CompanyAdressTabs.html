@@ -1,0 +1,328 @@
+<div class="company-adress-tabs">
+    <div>
+        <ul class="tabs-head">
+            <li v-for="(tab, index) in tabs"
+                :key="tab + index"
+                
+                :class="{ 'current': selectedTab == index, 'error' : isErrorExistsAtTab(index)}"
+            >
+                <span 
+                    class="tab-name" 
+                    @click="updateSelected(index)"
+                >{{tab}} </span>
+                <span
+                    class="tab-remove"
+                    @click="removeTab(index)" 
+                    v-show="selectedTab > 0"
+                >&times;</span>
+            </li>
+            <li @click.stop="addTabName" class="tabs-add">
+                + <span>Добавить еще адрес</span>
+            </li>
+        </ul>
+        <div v-for="(tab, index) in tabs"
+             :key="index"
+             v-show="selectedTab == index"
+        >
+            <div class="tab-content">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div v-show="tabNameAdd">
+                            <div class="form-group">
+                                <label class="control-label">Наименование</label>
+                                <div class="add-tab">
+                                    <v-select
+                                            :options="['Филиал','Производство']"
+                                            v-model="tabName"
+                                            taggable
+                                            placeholder="Введите наименование"
+                                    ></v-select>
+                                    <button class="btn btn-primary"
+                                            @click="addTab()"
+                                            :class="{ 'disabled': tabName == ''}">Добавить
+                                    </button>
+                                    <button class="btn btn-default"
+                                            @click="disableAdding()">Отменить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <h4 class="tab-content-title">Адрес</h4>
+                        <div :class="{ 'overlay': tabNameAdd == true}">
+                            
+                            <div class="form-group">
+                                <label class="control-label">Страна</label>
+                                <v-select
+                                        :options="countries"
+                                        v-model="currentSelectedCountry"
+                                        :onChange="onChangeCountry"
+                                        taggable
+                                        placeholder="Выберите страну"
+                                ></v-select>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Населенный пункт</label>
+                                <v-select
+                                        :options="currentCities"
+                                        v-model="currentSelectedCity"
+                                        :filterBy="filterCity"
+                                        :onChange="onChangeCity"
+                                        taggable
+                                        placeholder="Выберите населенный пункт"
+                                ></v-select>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-8">
+                                    <label class="control-label">Адрес</label>
+                                    <input
+                                            type="text"
+                                            class="form-control"
+                                            v-model="currentAddress"
+                                            placeholder="Адрес в произвольной форме"
+                                    >
+                                    <form-element-error
+                                            v-bind:errors="currentAddressesErrors"
+                                            v-if="errors && currentAddressesErrors">
+                                    </form-element-error>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="control-label">Индекс</label>
+                                    <input
+                                            type="text"
+                                            class="form-control"
+                                            v-model="currentZip"
+                                            placeholder="Индекс"
+                                    >
+                                    <form-element-error
+                                            v-bind:errors="currentZipErrors"
+                                            v-if="errors && currentZipErrors">
+                                    </form-element-error>
+                                </div>
+                            </div>
+
+                            <div class="map-control" @click="yandexMapHide = !yandexMapHide">
+                                <span v-if="yandexMapHide">Показать карту</span>
+                                <span v-else>Скрыть карту</span>
+                            </div>
+                            <div id="map" v-if="!yandexMapHide">
+                                
+                                <yandex-map
+                                        v-if="yandexMapVisible"
+                                        :coords="currentYmapCenterCoords"
+                                        :center="currentYmapCenterCoords"
+                                        :zoom="currentYmapZoom"
+                                        :placemarks="currentPlacemarks"
+                                        style="width: 100%; height: 345px;"
+                                        :controls="['typeSelector']"
+                                        :cluster-options="{
+                    1: {clusterDisableClickZoom: true}
+                  }"
+                                        map-type="map"
+                                >
+                                </yandex-map>
+                            </div>
+                        </div>
+
+                        <h4 class="tab-content-title">Связь</h4>
+                        <div :class="{ 'overlay': tabNameAdd == true}">
+                            <div class="form-group">
+                                <label class="control-label">Email:</label>
+                                <input
+                                        v-model="currentTabEmail"
+                                        type="email"
+                                        class="form-control"
+                                        placeholder="Введите email"
+                                >
+                                <form-element-error
+                                        v-bind:errors="currentEmailErrors"
+                                        v-if="errors && currentEmailErrors">
+                                </form-element-error>
+                            </div>
+                            <div class="form-group">
+                                <input v-model="currentTabEmailDisplay"
+                                       type="checkbox" id="site_view">
+                                <label for="site_view">
+                                    <span class="checkbox_desc">Отображать на сайте</span>
+                                </label>
+                            </div>
+                            <div class="form-group" v-if="selectedTab == 0">
+                                <label class="control-label">Сайт</label>
+                                <div id="tooltipContent">
+                                    <p>Если при регистрации компании или редактировании материала о компании Вы разместили ссылку на Ваш сайт,
+                                        не забывайте установить <a href="/info/add-our-button" target="_blank">кнопку Winport</a> на Вашем сайте! Код кнопки должен быть установлен на всех страницах футера (подвала) Вашего сайта и доступен к индексации поисковыми системами.</p>
+                                </div>
+                                <div class="input-group" v-tooltip="{ html: 'tooltipContent' }">
+                                    <span class="input-group-addon">http://</span>
+                                    <input
+                                            :disabled="selectedTab > 0"
+                                            v-model="contacts[selectedTab].site"
+                                            type="url"
+                                            class="form-control"
+                                            :placeholder="currentPlaceholder"
+                                    >
+                                </div>
+                                <form-element-error
+                                        v-bind:errors="currentWebsiteErrors"
+                                        v-if="errors && currentWebsiteErrors">
+                                </form-element-error>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Телефонный номер в международном формате</label>
+                                <add-phone v-for="(field, index) in currentTabPhones"
+                                           :key="selectedTab + index"
+                                           :activePhone="field.type"
+                                           :currentPhone="field.value"
+                                           :index="index"
+                                           :country="selectedCountry[selectedTab]"
+                                           @company-phone="assignCompanyPhone"
+                                           @deleteFields="deletePhone(index)"></add-phone>
+                                <form-element-error
+                                        v-bind:errors="currentPhoneErrors"
+                                        v-if="errors && currentPhoneErrors">
+                                </form-element-error>
+                            </div>
+                            <button class="btn btn-primary" @click="addPhone" v-if="contacts[selectedTab].phones.length < 5">Добавить еще один номер</button>
+                        </div>
+
+                        <br>
+                        <div :class="{ 'overlay': tabNameAdd == true}">
+                            <div class="form-group">
+                              <h4 class="tab-content-title">Рабочее время</h4>
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <table class="working-time">
+                                      <thead>
+                                      <tr>
+                                          <td>День</td>
+                                          <td>Рабочее время</td>
+                                      </tr>
+                                      </thead>
+                                      <tr>
+                                          <td class="day-name">Понедельник</td>
+                                          <td class="day-time">
+                                              <input type="text" class="form-control" v-model="currentMonday" @click.stop="showWorkTime('monday', $event)">
+                                          </td>
+                                      </tr>
+                                      <tr>
+                                          <td class="day-name">Вторник</td>
+                                          <td class="day-time">
+                                              <input type="text" class="form-control" v-model="currentTuesday" @click.stop="showWorkTime('tuesday', $event)">
+                                          </td>
+                                      </tr>
+                                      <tr>
+                                          <td class="day-name">Среда</td>
+                                          <td class="day-time">
+                                              <input type="text" class="form-control" v-model="currentWednesday" @click.stop="showWorkTime('wednesday', $event)">
+                                          </td>
+                                      </tr>
+                                      <tr>
+                                          <td class="day-name">Четверг</td>
+                                          <td class="day-time">
+                                              <input type="text" class="form-control" v-model="currentThursday" @click.stop="showWorkTime('thursday', $event)">
+                                          </td>
+                                      </tr>
+                                  </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="working-time">
+                                        <thead>
+                                        <tr class="hidden-sm hidden-xs">
+                                            <td>День</td>
+                                            <td>Рабочее время</td>
+                                        </tr>
+                                        </thead>
+                                        <tr>
+                                            <td class="day-name">
+                                                Пятница
+                                            </td>
+                                            <td class="day-time">
+                                                <input type="text" class="form-control" v-model="currentFriday" @click.stop="showWorkTime('friday', $event)">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="day-name">
+                                                Суббота
+                                            </td>
+                                            <td class="day-time">
+                                                <input type="text" class="form-control" v-model="currentSaturday" @click.stop="showWorkTime('saturday', $event)">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="day-name">
+                                                Воскресенье
+                                            </td>
+                                            <td class="day-time">
+                                                <input type="text" class="form-control" v-model="currentSunday" @click.stop="showWorkTime('sunday', $event)">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                  </div>
+                                </div>
+
+
+
+                                <form-element-error
+                                        v-bind:errors="currentWorkingTimeErrors"
+                                        v-if="errors && currentWorkingTimeErrors">
+                                </form-element-error>
+                                <div v-click-outside="closeWorkingTime" :class="{ 'working-time-picker': true, 'lefter': isLeftWorkingTime, 'righter': !isLeftWorkingTime, 'righter-working': isRighterWorking}" :style="{left : workTimeX + 'px', top: workTimeY + 'px'}" v-if="displayWorkTime">
+                                    <div class="working-time-type" v-if="workTimeStep == 1">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Тип дня</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td :class="{ 'active': workTimeType == 'Рабочий день'}" @click="selectWorkingDay">Рабочий день</td>
+                                                </tr>
+                                                <tr>
+                                                    <td :class="{ 'active': workTimeType == 'Выходной'}" @click='selectWeekend'>Выходной</td>
+                                                </tr>
+                                                <tr>
+                                                    <td :class="{ 'active': workTimeType == 'Круглосуточно'}" @click='selectRoundTheClock'>Круглосуточно</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="working-time-start" v-if="workTimeStep == 2">
+                                        <table>
+                                            <thead>
+                                            <tr>
+                                                <th colspan="8">Начало рабочего дня</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr v-for="i in 6">
+                                                <td v-for="j in 8" @click="selectDayStart((i-1)*8 + (j-1))" :class="{ 'active': dayTimes[(i-1)*8 + (j-1)] == workTimeStart}"> {{dayTimes[(i-1)*8 + (j-1)]}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="working-time-end" v-if="workTimeStep == 3">
+                                        <table>
+                                            <thead>
+                                            <tr>
+                                                <th colspan="8">Конец рабочего дня</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr v-for="i in 6">
+                                                <td v-for="j in 8" @click="selectDayEnd((i-1)*8 + (j-1))" :class="{ 'active': (dayTimes[(i-1)*8 + (j-1)] == workTimeEnd), 'disable' : ((i-1)*8 + (j-1) <= workStartIndex)}"> {{dayTimes[(i-1)*8 + (j-1)]}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-primary" v-if="mode == 'edit'">Сохранить</button>
+    <button class="btn btn-secondary" @click="removeTab(selectedTab)" v-show="selectedTab > 0">Удалить
+    </button>
+</div>

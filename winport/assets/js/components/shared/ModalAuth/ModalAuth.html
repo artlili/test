@@ -1,0 +1,145 @@
+<transition name="bounce">
+    <div class="modal-mask" v-if="modalAuthName" @click="setModalAuthName('')">
+        <div class="modal-wrapper">
+            <div class="modal" @click.stop>
+
+
+                <div v-if="modalAuthName === 'signin'">
+                    <div class="modal_title">Авторизация</div>
+                    <div class="form">
+                        <div class="line">
+                            <div class="field">
+                                <input type="email"
+                                       v-model="signinForm.email"
+                                       class="input"
+                                       placeholder="Ваш e-mail"
+                                       :class="{error: signinResponse.errors && signinResponse.errors.email}">
+                                <form-element-error
+                                        v-bind:errors="signinFormResponse.errors.email"
+                                        v-if="signinResponse.errors && signinResponse.errors.email">
+                                </form-element-error>
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="field">
+                                <input type="password"
+                                       v-model="signinForm.password"
+                                       :class="{error: signinResponse.errors && signinResponse.errors.password}"
+                                       class="input"
+                                       placeholder="Пароль">
+                                <form-element-error
+                                        v-bind:errors="signinFormResponse.errors.password"
+                                        v-if="signinResponse.errors && signinResponse.errors.password">
+                                </form-element-error>
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="recovery">
+                                Если вы забыли пароль, вы можете
+                                <a class="modal_link" @click="setModalAuthName('recovery')">восстановить</a> его.
+                            </div>
+                        </div>
+
+                        <div class="submit">
+                            <button type="submit" class="submit_btn left" @click="authSignin()">Войти</button>
+                            <a class="button_red left modal_link" @click="setModalAuthName('signup')">Регистрация</a>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div v-if="modalAuthName === 'signup'">
+                    <div class="modal_title">Регистрация</div>
+
+                    <div class="form" v-if="!signupResponse.success">
+
+                        <div class="line">
+                            <div class="field">
+                                <input type="email"
+                                       v-model="signupForm.email"
+                                       class="input"
+                                       placeholder="Ваш e-mail"
+                                       :class="{error: signupResponse.errors && signupResponse.errors.email}">
+                                <form-element-error
+                                        v-bind:errors="signupFormResponse.errors.email"
+                                        v-if="signupResponse.errors && signupResponse.errors.email">
+                                </form-element-error>
+                            </div>
+                        </div>
+
+                        <div class="line">
+                            <div class="field">
+                                <input type="password"
+                                       v-model="signupForm.password"
+                                       :class="{error: signupResponse.errors && signupResponse.errors.password}"
+                                       class="input"
+                                       placeholder="Пароль">
+                                <form-element-error
+                                        v-bind:errors="signupFormResponse.errors.password"
+                                        v-if="signupResponse.errors && signupResponse.errors.password">
+                                </form-element-error>
+                            </div>
+                        </div>
+
+                        <p class="submit">
+                            <button type="button" class="submit_btn" @click="authSignup()">Зарегистрироваться</button>
+                        </p>
+
+                        <p>
+                            Если вы регистрировались ранее, пожалуйста,
+                            <a class="modal_link" @click="setModalAuthName('signin')">авторизуйтесь</a>
+                        </p>
+                    </div>
+
+                    <div v-if="signupResponse.success" >
+                        <strong>{{signupResponse.message}}</strong>
+                    </div>
+                </div>
+
+
+                <div v-if="modalAuthName === 'recovery'">
+                    <div class="form">
+                        <div class="modal_title">Восстановление пароля</div>
+                            <div v-show="!resetPasswordResponse.success">
+                                <p class="line">
+                                    <div class="field">
+                                        <input type="email"
+                                               v-model="resetPasswordForm.email"
+                                               :class="{error: resetPasswordResponse.errors && resetPasswordResponse.errors.email}"
+                                               class="input"
+                                               placeholder="Ваш e-mail">
+                                        <form-element-error
+                                                v-bind:errors="resetPasswordResponse.errors.email"
+                                                v-if="resetPasswordResponse.errors && resetPasswordResponse.errors.email">
+                                        </form-element-error>
+                                    </div>
+                                </p>
+
+                                <p class="text-center">
+                                    <button class="submit_btn" @click="authResetPassword()">Восстановить</button>
+                                </p>
+                                <br />
+                            </div>
+
+                            <p v-show="resetPasswordResponse.success">
+                                <strong>{{resetPasswordResponse.message}}</strong>
+                            </p>
+
+                            <p>
+                                <span class="button_red modal_link" @click="setModalAuthName('signin')">Авторизация</span>
+                                <span class="button_red modal_link" @click="setModalAuthName('signup')">Регистрация</span>
+                            </p>
+                    </div>
+                </div>
+
+
+                <button class="modal-close" title="Закрыть" @click="setModalAuthName('')"></button>
+
+
+            </div>
+        </div>
+    </div>
+</transition>

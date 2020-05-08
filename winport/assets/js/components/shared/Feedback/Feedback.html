@@ -1,0 +1,83 @@
+<transition name="bounce">
+    <div class="modal-mask" v-if="openFeedback" @click="setOpenFeedback(false)">
+        <div class="modal-wrapper">
+            <div class="modal" @click.stop>
+                <div class="form">
+                    <div class="modal_title">Обратная связь</div>
+
+                    <div v-if="feedbackResponse && feedbackResponse.success && feedbackResponse.message">
+                        {{feedbackResponse.message}}
+                    </div>
+
+                    <div class="line">
+                        <div class="field">
+                            <input type="text"
+                                   v-model="feedbackForm.name"
+                                   class="input"
+                                   placeholder="Ваше имя*"
+                                   :class="{error: feedbackResponse.errors && feedbackResponse.errors.name}">
+                            <form-element-error
+                                    v-bind:errors="feedbackResponse.errors.name"
+                                    v-if="feedbackResponse.errors && feedbackResponse.errors.name">
+                            </form-element-error>
+                        </div>
+                    </div>
+
+                    <div class="line">
+                        <div class="field">
+                            <input type="email"
+                                   v-model="feedbackForm.email"
+                                   class="input"
+                                   placeholder="Ваш e-mail*"
+                                   :class="{error: feedbackResponse.errors && feedbackResponse.errors.email}">
+                            <form-element-error
+                                    v-bind:errors="feedbackResponse.errors.email"
+                                    v-if="feedbackResponse.errors && feedbackResponse.errors.email">
+                            </form-element-error>
+                        </div>
+                    </div>
+
+                    <div class="line">
+                        <div class="field">
+                                <textarea
+                                        v-model="feedbackForm.message"
+                                        placeholder="Сообщение*"
+                                        :class="{error: feedbackResponse.errors && feedbackResponse.errors.message}"></textarea>
+                            <form-element-error
+                                    v-bind:errors="feedbackResponse.errors.message"
+                                    v-if="feedbackResponse.errors && feedbackResponse.errors.message">
+                            </form-element-error>
+                        </div>
+                    </div>
+
+                    <div class="line">
+                        <div class="field">
+                            <form-element-error
+                                    v-bind:errors="feedbackResponse.errors.general"
+                                    v-if="feedbackResponse.errors && feedbackResponse.errors.general">
+                            </form-element-error>
+                        </div>
+                    </div>
+
+                    <div class="line">
+                        <div class="field">
+                            <vue-recaptcha
+                                    ref="recaptcha"
+                                    @verify="onCaptchaVerified"
+                                    @expired="onCaptchaExpired"
+                                    size="invisible"
+                                    sitekey="6Lf8HXUUAAAAAJAFII1Zx2WMEhE_cAgHP4PUB8n-">
+                            </vue-recaptcha>
+                        </div>
+                    </div>
+
+                    <div class="submit">
+                        <button :disabled="status==='submitting'" type="submit" class="submit_btn" @click="checkCaptcha()">Отправить</button>
+                    </div>
+                </div>
+
+                <button class="modal-close" title="Закрыть" @click="setOpenFeedback(false)"></button>
+            </div>
+        </div>
+    </div>
+</transition>

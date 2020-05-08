@@ -1,0 +1,451 @@
+<section class="page_content">
+    <section class="company_info">
+        <div class="cont">
+            <div class="head">
+                <div class="col left">
+                    <h1 class="name">{{company.item.name}}</h1>
+                    <div class="desc"></div>
+                </div>
+
+                <div class="col right"></div>
+                <div class="clear"></div>
+            </div>
+
+            <div class="info">
+                <div class="contacts left">
+                    <div class="adres">
+                        <div class="title">Адрес</div>
+                        <div>{{company.item.address}}</div>
+                    </div>
+
+                    <div class="links">
+                        <a @click="openContactModelWithPhoneTab"
+                           class="modal_link">
+                            <div class="icon phones"></div>
+                            Телефоны
+                        </a>
+                        <a v-if="company.item.email" class="modal_link"
+                           @click="openContactModelWithEmailTab">
+                            <div class="icon email"></div>
+                            E-mail
+                        </a>
+                        <a v-if="company.item.working_time && company.item.working_time.monday.length > 0"
+                           @click="openContactModelWithWorkingTimeTab">
+                            <div class="icon branches"></div>
+                            Расписание
+                        </a>
+                        <a :href="company.item.website" target="_blank" v-if="company.item.website">
+                            <div class="icon site"></div>
+                            Вебсайт
+                        </a>
+                    </div>
+                </div>
+
+                <div class="map right">
+
+                    <div id="map">
+                        <yandex-map
+                                :key='smallMap'
+                                :coords="ymapCenterCoords"
+                                :center="ymapCenterCoords"
+                                :zoom="16"
+                                style="width: 100%; height: 100%;"
+                                :cluster-options="{1: {clusterDisableClickZoom: true}}"
+                                :controls="[]"
+                                :object-manager-clusterize="false"
+                                :placemarks="ymapPlacemarks"
+                                @map-was-initialized="initSmallMap"
+                                map-type="map"
+                        >
+                        </yandex-map>
+                    </div>
+
+                    <router-link :to="'/company/' + alias + '#map'"
+                                 class="map_link"
+                                 v-bind:class="{ active: $route.hash === '#map' }">
+                        Карта
+                    </router-link>
+                </div>
+
+                <div class="logo right">
+                    <img :src="company.item.logo ? company.item.logo : noImageUrls.company270180" alt="">
+                </div>
+                <div class="clear"></div>
+                <div class="desc text_block">
+                    <div class="verify yes" v-if="company.item.verified">Компания верифицированна</div>
+                    <div class="verify no" v-if="!company.item.verified">Компания не верифицированна</div>
+                </div>
+                <div v-if="company.item.inn_field_name && company.item.unp_inn && (company.item.unp_inn !== '*')">
+                    <strong>{{company.item.inn_field_name}}:</strong> {{company.item.unp_inn}}
+                </div>
+
+                <a href="#" class="details"
+                   v-if="(company.item.additional_info.length>0) || (!isAuthorized)"
+                   @click.prevent="toggleAdditionalVisibility"
+                   :class="{ active: additionalVisibility}"
+                ><span>Дополнительная информация</span></a>
+                <div class="features"
+                     v-if="isAuthorized && (company.item.additional_info.length>0) && additionalVisibility">
+                    <div class="item" v-for="row in company.item.additional_info">
+                        <strong>{{row.field_name}}</strong>:&nbsp;{{row.field_value}}
+                    </div>
+                </div>
+                <div class="features" v-if="!isAuthorized && additionalVisibility">
+                    Хотите увидеть больше - <a href="#"
+                                               @click.prevent="setModalAuthName('signup')">зарегистрируйтесь</a> или <a
+                        href="#" @click.prevent="setModalAuthName('signin')">авторизуйтесь</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="cont">
+        <section id="tab_menu" class="page_menu">
+            <router-link :to="companyAboutTab"
+                         class="name"
+                         v-bind:class="{ active: !$route.hash && !isAlbumRoutePath($route.path)}">
+                О компании
+            </router-link>
+            <router-link :to="companyNewsTab"
+                         v-if="company.item.news.length"
+                         class="name"
+                         v-bind:class="{ active: $route.hash === '#news' }">
+                Новости компании
+            </router-link>
+            <router-link :to="companyAlbumsTab"
+                         v-if="company.item.companyAlbums && company.item.companyAlbums.length"
+                         class="name"
+                         v-bind:class="{ active: isAlbumRoutePath($route.path) }">
+                Изображения
+            </router-link>
+            <router-link :to="companyMapTab"
+                         v-if="company.item.address && company.item.branches.length === 0"
+                         class="name"
+                         v-bind:class="{ active: $route.hash === '#map' }"
+            >
+                На карте
+            </router-link>
+            <router-link :to="companyProductsTab"
+                         v-if="company.item.products.length"
+                         class="name"
+                         v-bind:class="{ active: $route.hash === '#products' }">
+                Продукты
+            </router-link>
+            <router-link :to="companyBranchesTab"
+                         v-if="company.item.branches.length"
+                         class="name"
+                         v-bind:class="{ active: $route.hash === '#branches' }"
+            >
+                Филиалы
+            </router-link>
+        </section>
+        <section class="page_menu mobile">
+            <div class="page_menu-select"
+                 v-on:click="openSelect"
+                 v-bind:class="{ open: isOpen }">
+
+                <span v-if="!$route.hash && !isAlbumRoutePath($route.path)">О компании</span>
+                <span v-if="$route.hash === '#news'">Новости компании </span>
+                <span v-if="isAlbumRoutePath($route.path)">Изображения </span>
+                <span v-if="$route.hash === '#map'">На карте</span>
+                <span v-if="$route.hash === '#products'">Продукты </span>
+                <span v-if="$route.hash === '#branches'">Филиалы </span>
+
+                <div class="select-list">
+                    <router-link :to="companyAboutTab"
+                                 class="name"
+                                 v-bind:class="{ active: !$route.hash && !isAlbumRoutePath($route.path) }">
+                        О компании
+                    </router-link>
+                    <router-link :to="companyNewsTab"
+                                 v-if="company.item.news.length"
+                                 class="name"
+                                 v-bind:class="{ active: $route.hash === '#news' }">
+                        Новости компании
+                    </router-link>
+                    <router-link :to="companyAlbumsTab"
+                                 v-if="company.item.companyAlbums && company.item.companyAlbums.length"
+                                 class="name"
+                                 v-bind:class="{ active: isAlbumRoutePath($route.path) }">
+                        Изображения
+                    </router-link>
+                    <router-link :to="companyMapTab"
+                                 v-if="company.item.address && company.item.branches.length === 0"
+                                 class="name"
+                                 v-bind:class="{ active: $route.hash === '#map' }"
+                    >
+                        На карте
+                    </router-link>
+                    <router-link :to="companyProductsTab"
+                                 v-if="company.item.products.length"
+                                 class="name"
+                                 v-bind:class="{ active: $route.hash === '#products' }">
+                        Продукты
+                    </router-link>
+                    <router-link :to="companyBranchesTab"
+                                 v-if="company.item.branches.length"
+                                 class="name"
+                                 v-bind:class="{ active: $route.hash === '#branches' }"
+                    >
+                        Филиалы
+                    </router-link>
+                </div>
+            </div>
+        </section>
+        <!-- Таб "О компании" -->
+        <section class="content_grid" v-if="!$route.hash && !isAlbumRoutePath($route.path)">
+            <section class="company_content content">
+
+                <section class="text_block">
+                    <template v-for="node, n in nodes">
+                        <small-gallery v-if="n % 2" :id="node"></small-gallery>
+                        <span v-else v-html="node"></span>
+                    </template>
+                </section>
+
+            </section>
+
+            <aside>
+                <div class="block">
+                    <section class="company_view_sections" v-if="company.item.sections.length">
+                        <div class="title">Категории</div>
+
+                        <router-link :to="'/companies/' + section.alias" v-for="section in company.item.sections"
+                                     :key="section.alias">
+                            <span>{{section.name}}</span>
+                        </router-link>
+                    </section>
+                </div>
+
+                <div class="block" v-if="company.item.news.length">
+
+                    <div class="block_title">
+                        <router-link :to="'/company/' + company.item.alias + '#news'">
+                            Новости
+                        </router-link>
+                    </div>
+
+                    <div class="news_list">
+                        <router-link :to="'/article/' + company.item.news[k].alias"
+                                     v-for="k in [0, 1]"
+                                     key="k"
+                                     v-if="company.item.news[k]"
+                                     class="item type1"
+                                     v-bind:style="{ backgroundImage: 'url(' + (company.item.news[k].image_400_400 ? company.item.news[k].image_400_400 : noImageUrls.article400400) + ')' }">
+                            <div class="info">
+                                <div class="name">{{company.item.news[k].name}}</div>
+
+                                <div class="desc" v-html="company.item.news[k].introtext"></div>
+
+                                <div class="bottom">
+                                    <div class="date left">
+                                        {{company.item.news[k].article_date}}
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </router-link>
+                    </div>
+                </div>
+            </aside>
+        </section>
+        <!-- End Таб "О компании" -->
+
+        <!-- Таб "Галерея" -->
+        <svg class="spinnerNews" v-if="isAlbumsLoading"
+             viewBox="0 0 66 66"
+             xmlns="http://www.w3.org/2000/svg">
+            <circle class="path"
+                    fill="none"
+                    stroke-width="6"
+                    stroke-linecap="round"
+                    cx="33"
+                    cy="33"
+                    r="30">
+            </circle>
+        </svg>
+        <section class="gallery_grid" :class="{shadeNews: isAlbumsLoading}" v-if="isAlbumRoutePath($route.path)">
+            <div v-if="company.item && company.item.companyAlbums.length">
+                <div class="block_title left">{{company.item.companyAlbums[currentAlbumIndex].name}}</div>
+                <div class="next_gallery" v-if="isNextGallery(currentAlbumIndex)">
+                    <router-link :to="nextGalleryUrl(currentAlbumIndex)" aria-label="Next">
+                        <span aria-hidden="true"><i class="fas fa-angle-right"></i></span>
+                    </router-link>
+                </div>
+                <div class="clear"></div>
+                <div class="grid">
+                    <div class="item_wrap" v-for="image in company.item.currentAlbum">
+                        <span class="item fancy_img">
+                            <img :src="image.url" :alt="image.name" :main_url="image.urlOriginal">
+                            <div class="name" v-if="image.name">{{image.name}}</div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <pagination :pagination="albumsPagination"
+                        :showFirstAtUrl="false"
+                        :urlPrefix="albumPaginationPrefix"></pagination>
+
+            <gallery id='bigGallery' :images="companyAlbumImages" :index="imageIndex" @close="imageIndex = null"
+                     :options="bigGalleryOptions"></gallery>
+        </section>
+        <!-- End Таб "Галерея" -->
+
+        <section class="company_map" v-if="$route.hash === '#map'">
+            <div class="branches-filter" v-if="company.item.branches.length > 0">
+                <ul class="tabs">
+                    <li><a href="#branches">Списком</a></li>
+                    <li class="active"><a href="#map" @click="isMapLoad">На карте</a></li>
+                </ul>
+            </div>
+            <yandex-map
+                    :key="bigMap"
+                    :coords="ymapCenterCoords"
+                    :center="ymapCenterCoords"
+                    :zoom="ymapZoom"
+                    style="width: 100%; height: 600px;"
+                    :controls="['trafficControl', 'zoomControl']"
+                    :placemarks="ymapPlacemarks"
+                    map-type="map"
+                    @map-was-initialized="initMap"
+                    :cluster-options="{ 1 : { clusterBalloonContentLayout: 'cluster#balloonCarousel', clusterBalloonContentLayoutHeight: 150}}"
+            >
+                <ymap-marker
+                        v-for="branche in company.item.branches"
+                        v-key="branche.id"
+                        :marker-id="branche.id"
+                        marker-type="placemark"
+                        :coords="[branche.latitude, branche.longitude]"
+                        cluster-name="1"
+                        :balloon="{ header: branche.name, body: 'Адрес: ' + branche.address, footer: 'Телефон: ' + branche.phone_1 }"
+                >
+                    >
+                </ymap-marker>
+            </yandex-map>
+
+            <div class="clear"></div>
+        </section>
+        <svg class="spinnerNews" v-if="isNewsLoading"
+             viewBox="0 0 66 66"
+             xmlns="http://www.w3.org/2000/svg">
+            <circle class="path"
+                    fill="none"
+                    stroke-width="6"
+                    stroke-linecap="round"
+                    cx="33"
+                    cy="33"
+                    r="30">
+            </circle>
+        </svg>
+        <section class="company_map" v-bind:class="{shadeNews: isNewsLoading}" v-if="$route.hash === '#news'">
+            <div class="content news_list">
+
+                <div class="grid">
+                    <div class="item_wrap" v-for="item in company.item.news">
+                        <router-link :to="{path: '/article/' + item.alias}" class="item type2">
+                            <div class="img">
+                                <img :src="(item.image_400_200 ? item.image_400_200 : noImageUrls.article400200)"
+                                     alt="">
+                            </div>
+
+                            <div class="info">
+                                <div class="date left">{{item.article_date}}</div>
+                                <div class="clear"></div>
+
+                                <div class="name">{{item.name}}</div>
+
+                                <div class="desc" v-html="item.introtext"></div>
+                            </div>
+                        </router-link>
+                    </div>
+                </div>
+                <pagination :pagination="newsPagination"
+                            :urlPrefix="'/company' + (companyAlias ? ('/' + companyAlias) : '')"
+                            :urlHash="'news'"></pagination>
+            </div>
+        </section>
+        <section class="products" v-if="$route.hash === '#products'">
+            <!-- <div class="block_title left">Продукция</div> -->
+            <div class="clear"></div>
+            <div class="grid">
+                <div class="item_wrap" v-for="item in company.item.products">
+                    <div class="product">
+                        <div class="thumb">
+                            <router-link :to="'/product/' + item.alias">
+                                <img :src="(item.image ? item.image : noImageUrls.product250250)" alt="">
+                            </router-link>
+                        </div>
+
+                        <div class="info">
+                            <div class="name">
+                                <router-link :to="'/product/' + item.alias">
+                                    {{item.name}}
+                                </router-link>
+                            </div>
+
+                            <div v-if="item.price !== '0.00'" class="price">
+                                <b>{{item.price}}</b> {{item.currency}}
+                            </div>
+                            <div v-else class="price">
+                                Цена по запросу
+                            </div>
+
+                            <router-link :to="'/product/' + item.alias" class="details">
+                                <span>подробнее</span>
+                            </router-link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="branches_list" v-if="$route.hash === '#branches'">
+            <div class="branches-filter">
+                <ul class="tabs">
+                    <li class="active"><a href="#branches">Списком</a></li>
+                    <li><a href="#map" @click="isMapLoad">На карте</a></li>
+                </ul>
+            </div>
+            <div class="clear"></div>
+            <div class="grid">
+                <div class="item_wrap" v-for="(item, index) in company.item.branches">
+                    <div class="item">
+                        <div class="city">{{item.city}}</div>
+
+                        <div class="data">
+                            <div class="adres">{{item.address}}</div>
+
+                            <div class="links">
+                      <span
+                              class="modal_link"
+                              v-if="item.phone_1"
+                              @click="openContactModalPhonesForBranch(item)"
+                      >
+                        <div class="icon phones"></div>
+                      </span>
+                                <span
+                                        class="modal_link"
+                                        v-if="item.working_time"
+                                        @click="openContactModalWorkingTimeForBranch(item)"
+                                >
+                                    <div class="icon times"></div>
+                                </span>
+                                <span
+                                        class="modal_link"
+                                        v-if="item.email"
+                                        @click="openContactModalEmailForBranch(item)"
+                                >
+                          <div class="icon email"></div>
+                      </span>
+                            </div>
+                        </div>
+                        <a @click="openModalMap(item)" class="in_map_link">на карте</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <notifications position="top right"/>
+    <company-contact :company="currentCompany" :openTab="selectedCompanyTab" :feedback="false"></company-contact>
+    <modal-map :ymapCoords="currentModalMap" :openMap="openModalMap" :closeMap="closeModalMap"></modal-map>
+</section>

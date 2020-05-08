@@ -1,0 +1,31 @@
+<transition name="bounce">
+    <div class="modal-mask" v-if="ymapCoords">
+        <div class="modal-wrapper">
+            <div class="modal-map modal" @click.stop>
+              <div class="company_map">
+                <yandex-map
+                        :coords="ymapCoords"
+                        :center="ymapCoords"
+                        :zoom="ymapZoom"
+                        style="width: 100%; height: 600px;"
+                        :controls="['trafficControl', 'zoomControl']"
+                        :placemarks="ymapPlacemarks"
+                        map-type="map"
+                >
+                  <ymap-marker
+                    marker-id="1"
+                    marker-type="placemark"
+                    :coords="ymapCoords"
+                    cluster-name="1"
+                  ></ymap-marker>
+                </yandex-map>
+              </div>
+
+
+                <button class="modal-close" title="Закрыть" @click="closeMap"></button>
+
+
+            </div>
+        </div>
+    </div>
+</transition>

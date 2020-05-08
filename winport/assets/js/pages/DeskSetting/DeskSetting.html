@@ -1,0 +1,129 @@
+<div class="desk-setting">
+  <!-- Настройки кабинета -->
+  <desk-widget
+    widgetTitle="Настройки кабинета"
+  >
+    <div class="checkbox">
+      <input type="checkbox" id="my-companies" value="my-companies" v-model="checkedCompanies">
+      <label for="my-companies">
+        <span>Показывать мои последние компании</span>
+      </label>
+    </div>
+    <div class="checkbox">
+      <input type="checkbox" id="my-ads" value="my-ads" v-model="checkedAds">
+      <label for="my-ads">
+        <span>Показывать мои последние объявления</span>
+      </label>
+    </div>
+    <div class="checkbox">
+      <input type="checkbox" id="my-messages" value="my-messages" v-model="checkedMessages">
+      <label for="my-messages">
+        <span>Уведомлять меня о новых личных сообщениях</span>
+      </label>
+    </div>
+    <div class="checkbox">
+      <input type="checkbox" id="my-notes"  value="my-notes" v-model="checkedNotes">
+      <label for="my-notes">
+        <span>Показывать мои уведомления</span>
+      </label>
+    </div>
+  </desk-widget><!-- End Настройки кабинета -->
+
+  <!-- Настройки профиля -->
+  <desk-widget
+    widgetTitle="Настройки профиля"
+  >
+    <div class="checkbox">
+      <input type="checkbox" id="my-online">
+      <label for="my-online">
+        <span>Скрывать мое пребывание на сайте</span>
+      </label>
+    </div>
+    <div class="checkbox">
+      <input type="checkbox" id="my-mail">
+      <label for="my-mail">
+        <span>Показывать мою электронную почту пользователям</span>
+      </label>
+    </div>
+    <div class="checkbox">
+      <input type="checkbox" id="my-gender">
+      <label for="my-gender">
+        <span>Пол отобразить на сайте</span>
+      </label>
+    </div>
+  </desk-widget><!-- End Настройки профиля -->
+
+  <!-- Последние компании -->
+  <desk-widget v-if="checkedCompanies"
+    widgetTitle="Последние компании"
+  >
+    <router-link
+      class="widget-arrow"
+      :to="'/desk-company/list'"
+    ></router-link>
+    <p class="status moderation">
+      <a href="">DEXEN™ (БЕЛЕФ-ПЛАСТ, СООО)</a>
+    </p>
+    <p class="status moderation">
+      <a href="">GEALAN BALTIC</a>
+    </p>
+    <p class="status rejected">
+      <a href="">ORBITA™ (ОРБИТАОКНАСТРОЙ, ООО)</a>
+    </p>
+    <p class="status accepted">
+      <a href="">REHAU AG+CO, ПРЕДСТАВИТЕЛЬСТВО В МИНСКЕ</a>
+    </p>
+    <p class="status accepted">
+      <a href="">БЕЛГАЗПРОМДИАГНОСТИКА, УП</a>
+    </p>
+  </desk-widget><!-- End Последние компании -->
+
+  <!-- Последние объявления -->
+  <desk-widget v-if="checkedAds"
+    widgetTitle="Последние объявления"
+  >
+    <router-link
+      class="widget-arrow"
+      :to="'/desk-ad/list'"
+    ></router-link>
+    <p class="status moderation">
+      <a href="">AGB Фурнитура дверная</a>
+    </p>
+    <p class="status moderation">
+      <a href="">GEALAN cистема IKD с PUR заполнителем</a>
+    </p>
+    <p class="status rejected">
+      <a href="">Air-Box Standart приточные вентиляционные клапаны</a>
+    </p>
+    <p class="status accepted">
+      <a href="">Alutech система ALT100</a>
+    </p>
+  </desk-widget><!-- End Последние объявления -->
+
+  <!-- Сообщения -->
+  <desk-widget v-if="checkedMessages"
+    widgetTitle="Сообщения"
+  >
+    <router-link
+      class="widget-arrow"
+      :to="'/desk/subscription'"
+    ></router-link>
+    <p><a href="">Добавлены новые виджеты</a></p>
+    <p><a href="">Скоро Новый год</a></p>
+    <p><a href="">Пополнить баланс</a></p>
+    <p><a href="">И еще одно очень длинное сообщение</a></p>
+  </desk-widget><!-- End Сообщения -->
+
+  <!-- Уведомления -->
+  <desk-widget v-if="checkedNotes"
+    widgetTitle="Уведомления"
+  >
+    <router-link
+      class="widget-arrow"
+      :to="'/desk/notifications'"
+    ></router-link>
+  <p><a href="">Компания "REHAU AG+CO, ПРЕДСТАВИТЕЛЬСТВО В МИНСКЕ" прошла модерацию</a></p>
+  <p><a href="">Объявление "Air-Box Standart приточные вентиляционные клапаны" отклонено</a></p>
+  </desk-widget><!-- End Уведомления -->
+
+</div>
